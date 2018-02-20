@@ -1,34 +1,37 @@
 package java_shell;
-
 import java.io.*;
-
 
 public class Main {
 
 	public static void main(String[] args) {
-		final String validOptions = "f";
-		String options = "";
+		final String VALID_OPTIONS = "f";   // List of all valid options
+		String options = "";   // To store user-inputed options
+		
+		// If user arguments are provided, assume first one are options.
 		if (args.length != 0) {
 			if (args[0].charAt(0) == '-') {
-				System.out.println("options detected");
-				for (int i = 1; i < args[0].length(); i++) {
-					if (validOptions.contains(args[0].substring(i,i+1))) {
-						options += args[0].substring(i,i+1);
+				String optString = args[0].substring(1, args[0].length());
+				for (int i = 0; i < optString.length(); i++) {
+					if (VALID_OPTIONS.contains(optString.substring(i,i+1))) {
+						options += optString.substring(i,i+1);
 					} else {
-						// Invalid Option Found
-						System.out.println("Print Usage Guidelines Here");
+						// Invalid option foundd
+						System.out.println("illegal option -- " + optString.charAt(i) );
+						System.out.println("usage: " + "[-" + VALID_OPTIONS + "]"
+								+ " [file...]");
 						System.exit(1);
 					}
 				}
 			}
-			System.out.println("options: " + options);
 		}
+		
 		// Read from file if option f was provided
 		if (options.contains("f")) {
 			int nRows = -1, nCols = -1;
 			int[][] grid = {};
+			String filename = "";
 			try {
-				String filename = args[1];
+				filename = args[1];
 				BufferedReader in = new BufferedReader(new FileReader(filename));	
 				// First line is two integers that denote the number of rows and columns
 				String[] dims = in.readLine().split(" ");
@@ -50,21 +53,24 @@ public class Main {
 					}
 
 				} catch (NumberFormatException e) {
-					System.out.println("Enter only integer values");
+					System.out.println("World file " + filename + " has non-integer ");
+					System.exit(1);
 				}
 				in.close();
 			} catch(FileNotFoundException e) {
-				// Print something useful
+				System.out.println("File " + filename + " not found");
+				System.exit(1);
+				
 			} catch(IOException e) {
 				// Print something useful
 			}		
-			// Create board that corresponds to text file input
+			// Create board that corresponds to text file
 			Board board = new Board(nRows, nCols, grid);
 			board.printBoard();
-		}
+		} 
+		// If no file is provided, create a default random board
 		else  {
-			// If no file is provided, create a default random board
-			Board board = createRandomBoard(10,10,25);
+			Board board = new Board();
 			board.printBoard();
 		}
 	}
